@@ -24,17 +24,13 @@ app read  <──apply──── merge LWW  <──pull()───────
 - Test otomatis saat ini mencakup core engine. Adapter framework sudah di-lint dan mengikuti API resmi, tapi belum punya integration test per framework.
 - Belum ada: snapshot/bootstrap untuk DB besar, enkripsi payload, dan sinkronisasi schema otomatis. Lihat [docs/architecture.md](docs/architecture.md#batasan).
 
-## Paket (Packagist vendor `ulsyairil`)
+## Install
 
-| Paket | Isi | Install |
-|---|---|---|
-| `ulsyairil/sqlite-sync` | Core engine, change-log, LWW merger, `LocalObjectStore` | `composer require ulsyairil/sqlite-sync` |
-| `ulsyairil/sqlite-sync-s3` | `S3ObjectStore` via Flysystem (S3, R2, MinIO, Supabase) | `composer require ulsyairil/sqlite-sync-s3 league/flysystem-aws-s3-v3` |
-| `ulsyairil/sqlite-sync-laravel` | ServiceProvider, config, `php artisan sqlite-sync` | `composer require ulsyairil/sqlite-sync-laravel` |
-| `ulsyairil/sqlite-sync-codeigniter` | Library, config, `php spark sqlite-sync` | `composer require ulsyairil/sqlite-sync-codeigniter` |
-| `ulsyairil/sqlite-sync-symfony` | Bundle, DI config, `bin/console sqlite-sync` | `composer require ulsyairil/sqlite-sync-symfony` |
+```bash
+composer require ulsyairil/sqlite-auto-cloud-sync
+```
 
-Repo ini monorepo. Untuk publish ke Packagist, pisahkan tiap folder `packages/*` jadi repo sendiri, atau gunakan `composer` path repository saat development.
+Semua include: core engine, S3/R2/MinIO adapter, Laravel, CodeIgniter 4, Symfony.
 
 ## Quick start (PHP murni)
 
@@ -69,7 +65,7 @@ php examples/demo.php
 ## S3 / R2 / MinIO
 
 ```bash
-composer require sqlite-sync/s3 league/flysystem-aws-s3-v3
+composer require ulsyairil/sqlite-auto-cloud-sync league/flysystem-aws-s3-v3
 ```
 
 ```php
@@ -99,7 +95,7 @@ Kredensial S3 **jangan** ditaruh di client. Device hanya butuh akses ke prefix b
 ## Laravel
 
 ```bash
-composer require sqlite-sync/laravel sqlite-sync/s3
+composer require ulsyairil/sqlite-auto-cloud-sync
 php artisan vendor:publish --tag=sqlite-sync
 ```
 
@@ -122,7 +118,7 @@ php artisan sqlite-sync sync
 ## CodeIgniter 4
 
 ```bash
-composer require sqlite-sync/codeigniter sqlite-sync/s3
+composer require ulsyairil/sqlite-auto-cloud-sync
 ```
 
 Copy `packages/codeigniter/src/Config/Sync.php` ke `app/Config/Sync.php`, isi `deviceId`, `tables`, `database`, dan `store`:
@@ -149,7 +145,7 @@ Adapter membuka PDO sendiri ke file SQLite (driver SQLite3 CI4 tidak mengekspos 
 ## Symfony
 
 ```bash
-composer require sqlite-sync/symfony sqlite-sync/s3
+composer require ulsyairil/sqlite-auto-cloud-sync
 ```
 
 ```yaml
