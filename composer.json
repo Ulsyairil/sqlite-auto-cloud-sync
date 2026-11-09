@@ -1,6 +1,6 @@
 {
     "name": "ulsyairil/sqlite-auto-cloud-sync",
-    "description": "Row-level SQLite cloud sync core with Laravel, CodeIgniter and Symfony adapters.",
+    "description": "Row-level SQLite cloud sync core with Laravel, CodeIgniter, Symfony, Yii 2 and CakePHP adapters.",
     "type": "library",
     "license": "MIT",
     "require": {
@@ -17,7 +17,9 @@
             "SqliteSync\\S3\\": "packages/s3/src/",
             "SqliteSync\\Laravel\\": "packages/laravel/src/",
             "SqliteSync\\CodeIgniter\\": "packages/codeigniter/src/",
-            "SqliteSync\\Symfony\\": "packages/symfony/src/"
+            "SqliteSync\\Symfony\\": "packages/symfony/src/",
+            "SqliteSync\\Yii\\": "packages/yii/src/",
+            "SqliteSync\\CakePHP\\": "packages/cakephp/src/"
         }
     },
     "autoload-dev": {

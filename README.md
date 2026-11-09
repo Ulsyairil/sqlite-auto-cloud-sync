@@ -7,7 +7,7 @@
 [![Tests](https://img.shields.io/badge/tests-21%20passing-brightgreen.svg)](#test)
 [![External calls](https://img.shields.io/badge/external%20calls-zero-success.svg)](#why-local)
 
-Sync SQLite antar device, level baris, dengan object storage sebagai cloud. Core framework-agnostic, adapter tipis untuk Laravel, CodeIgniter 4, dan Symfony.
+Sync SQLite antar device, level baris, dengan object storage sebagai cloud. Core framework-agnostic, adapter tipis untuk Laravel, CodeIgniter 4, Symfony, Yii 2, dan CakePHP.
 
 Bukan replikasi file. Setiap `INSERT`/`UPDATE`/`DELETE` ditangkap trigger SQLite ke change-log, di-upload sebagai batch JSON immutable, lalu di-merge di device lain dengan aturan **last-write-wins per baris**.
 
@@ -19,7 +19,7 @@ app read  <──apply──── merge LWW  <──pull()───────
 
 ## Status
 
-- Core + 3 adapter sudah ada, test suite lulus (`phpunit`: 21 test, 57 assertion).
+- Core + 5 adapter sudah ada, test suite lulus (`phpunit`: 21 test, 57 assertion).
 - Kompaksi batch + checkpoint per device sudah ada; batch lama dihapus setelah semua device lain menerapkannya.
 - Test otomatis saat ini mencakup core engine. Adapter framework sudah di-lint dan mengikuti API resmi, tapi belum punya integration test per framework.
 - Belum ada: snapshot/bootstrap untuk DB besar, enkripsi payload, dan sinkronisasi schema otomatis. Lihat [docs/architecture.md](docs/architecture.md#batasan).
@@ -30,7 +30,7 @@ app read  <──apply──── merge LWW  <──pull()───────
 composer require ulsyairil/sqlite-auto-cloud-sync
 ```
 
-Semua include: core engine, S3/R2/MinIO adapter, Laravel, CodeIgniter 4, Symfony.
+Semua include: core engine, S3/R2/MinIO adapter, Laravel, CodeIgniter 4, Symfony, Yii 2, dan CakePHP.
 
 ## Quick start (PHP murni)
 
@@ -175,6 +175,92 @@ services:
 bin/console sqlite-sync sync
 ```
 
+## Yii 2
+
+```bash
+composer require ulsyairil/sqlite-auto-cloud-sync
+```
+
+Daftarkan component, bootstrap, dan command di `config/main.php`:
+
+```php
+use SqliteSync\Yii\Config\Sync;
+
+return [
+    'bootstrap' => [\SqliteSync\Yii\Bootstrap::class],
+    'components' => [
+        'sqliteSync' => [
+            'class' => Sync::class,
+            'deviceId' => getenv('SQLITE_SYNC_DEVICE_ID') ?: gethostname(),
+            'tables' => ['notes' => ['pk' => 'id']],
+            'database' => dirname(__DIR__) . '/runtime/app.sqlite', // kosong = @runtime/sqlite-sync.sqlite
+            'store' => null, // default LocalObjectStore(@runtime/sqlite-sync)
+            'autoSync' => true,
+        ],
+    ],
+    'controllerMap' => [
+        'sqlite-sync' => \SqliteSync\Yii\Commands\SqliteSyncController::class,
+    ],
+];
+```
+
+`Bootstrap` menjalankan `install()` sebelum request menulis. `autoSync` menjalankan pull + push di event `Application::EVENT_AFTER_REQUEST`; kegagalan sync dicatat lewat `Yii::error()`, request tetap sukses. Untuk S3/R2/MinIO isi `store` dengan callable yang mengembalikan `ObjectStore`.
+
+```bash
+php yii sqlite-sync                  # status
+php yii sqlite-sync/sync
+php yii sqlite-sync/compact --keep=1
+php yii sqlite-sync/restore --force
+```
+
+## CakePHP
+
+```bash
+composer require ulsyairil/sqlite-auto-cloud-sync
+```
+
+Tulis konfigurasi di `config/bootstrap.php`:
+
+```php
+use Cake\Core\Configure;
+
+Configure::write('SqliteSync', [
+    'deviceId' => env('SQLITE_SYNC_DEVICE_ID') ?: gethostname(),
+    'tables' => ['notes' => ['pk' => 'id']],
+    'connection' => 'default', // koneksi SQLite CakePHP; atau 'database' => TMP . 'app.sqlite'
+    'store' => null,           // default LocalObjectStore(TMP . 'sqlite-sync')
+    'autoSync' => true,
+]);
+
+\SqliteSync\CakePHP\SqliteSync::boot(); // install trigger sebelum request menulis
+```
+
+Daftarkan middleware dan command di `src/Application.php`:
+
+```php
+use SqliteSync\CakePHP\Command\SyncCommand;
+use SqliteSync\CakePHP\Middleware\AutoSyncMiddleware;
+
+public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
+{
+    return $middlewareQueue->add(new AutoSyncMiddleware());
+}
+
+public function console(CommandCollection $commands): CommandCollection
+{
+    return $commands->add('sqlite-sync', SyncCommand::class);
+}
+```
+
+Middleware menjalankan `install()` sebelum request dan `sync()` setelah response dibangun. Kegagalan sync dicatat lewat `Log::error()` dan tidak menggagalkan request. Untuk dataset besar, jalankan sync dari queue/CLI, bukan di request lifecycle.
+
+```bash
+bin/cake sqlite-sync                  # status
+bin/cake sqlite-sync sync
+bin/cake sqlite-sync compact --keep=1
+bin/cake sqlite-sync restore --force
+```
+
 ## Aturan konflik
 
 Per baris, bukan per file:
@@ -193,6 +279,8 @@ Semua device konvergen ke nilai yang sama tanpa koordinasi server. Tidak ada loc
 | Laravel | `artisan sqlite-sync status` | `push` | `pull` | `sync` | `compact --keep=1` | `snapshot` | `restore --force` | `verify` | `repair` |
 | CodeIgniter | `spark sqlite-sync status` | `push` | `pull` | `sync` | `compact 1` | `snapshot` | `restore true` | `verify` | `repair` |
 | Symfony | `console sqlite-sync status` | `push` | `pull` | `sync` | `compact --keep=1` | `snapshot` | `restore --force=true` | `verify` | `repair` |
+| Yii 2 | `yii sqlite-sync` | `sqlite-sync/push` | `sqlite-sync/pull` | `sqlite-sync/sync` | `sqlite-sync/compact --keep=1` | `sqlite-sync/snapshot` | `sqlite-sync/restore --force` | `sqlite-sync/verify` | `sqlite-sync/repair` |
+| CakePHP | `cake sqlite-sync` | `sqlite-sync push` | `sqlite-sync pull` | `sqlite-sync sync` | `sqlite-sync compact --keep=1` | `sqlite-sync snapshot` | `sqlite-sync restore --force` | `sqlite-sync verify` | `sqlite-sync repair` |
 
 ### Operasi lanjutan
 
@@ -235,7 +323,7 @@ Setelah `restore`, device baru secara otomatis akan `pull` batch-batch yang dibu
 | **Schema** | Auto-migration detection & safe apply, column rename/type change handling |
 | **Bootstrap** | Streaming snapshot for large DB (>100MB), delta snapshot support |
 | **Observability** | Structured logs, metrics (Prometheus), tracing (OpenTelemetry) |
-| **Testing** | Integration tests per framework (Laravel/CI4/Symfony), chaos testing (network partition, clock skew) |
+| **Testing** | Integration tests per framework (Laravel/CI4/Symfony/Yii/CakePHP), chaos testing (network partition, clock skew) |
 | **DX** | `sqlite-sync doctor` diagnostics, web UI untuk inspect batch/status, VS Code extension |
 | **Platform** | Flutter/Dart client (mobile), Kotlin/Swift native bindings via FFI |
 | **Cloud** | Managed sync service (hosted bucket + API), conflict resolution webhook |

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - RowWriter shared by remote apply, snapshot restore and repair.
 - Compactor watermarks now include snapshot baselines.
 - Full CLI for snapshot/restore/verify/repair in Laravel, CodeIgniter and Symfony.
+- Yii 2 adapter: config component, bootstrap, console controller, auto-sync on application after-request.
+- CakePHP adapter: config, console command, PSR-15 auto-sync middleware.
 - GitHub Actions test matrix for PHP 8.1–8.4.
 
 ### Changed
