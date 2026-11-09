@@ -1,8 +1,8 @@
 # SQLite Auto Cloud Sync
 
 [![PHP](https://img.shields.io/badge/php-%3E%3D8.1-777bb4?logo=php&logoColor=white)](composer.json)
-[![Packagist Version](https://img.shields.io/packagist/v/ulsyairil/sqlite-sync.svg)](https://packagist.org/packages/ulsyairil/sqlite-sync)
-[![Packagist Downloads](https://img.shields.io/packagist/dt/ulsyairil/sqlite-sync.svg)](https://packagist.org/packages/ulsyairil/sqlite-sync)
+[![Packagist Version](https://img.shields.io/packagist/v/ulsyairil/sqlite-auto-cloud-sync.svg)](https://packagist.org/packages/ulsyairil/sqlite-auto-cloud-sync)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/ulsyairil/sqlite-auto-cloud-sync.svg)](https://packagist.org/packages/ulsyairil/sqlite-auto-cloud-sync)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-21%20passing-brightgreen.svg)](#test)
 [![External calls](https://img.shields.io/badge/external%20calls-zero-success.svg)](#why-local)
