@@ -1,0 +1,19 @@
+{
+    "name": "ulsyairil/sqlite-sync-symfony",
+    "description": "Symfony bundle for sqlite-sync.",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "ulsyairil/sqlite-sync": "^0.1",
+        "symfony/config": "^6.4 || ^7.0",
+        "symfony/console": "^6.4 || ^7.0",
+        "symfony/dependency-injection": "^6.4 || ^7.0",
+        "symfony/http-kernel": "^6.4 || ^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SqliteSync\\Symfony\\": "src/"
+        }
+    }
+}

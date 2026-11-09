@@ -1,0 +1,16 @@
+{
+    "name": "ulsyairil/sqlite-sync",
+    "description": "Framework-agnostic row-level SQLite cloud sync engine.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "ext-pdo": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "SqliteSync\\Core\\": "src/"
+        }
+    }
+}
